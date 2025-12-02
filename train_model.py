@@ -7,6 +7,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
+from imblearn.over_sampling import RandomOverSampler
+import xgboost as xgb
+
+
 
 ###########################################
 # 1) DESCARGAR DATOS IBEX 35
@@ -130,10 +134,8 @@ def train_models(df):
 # -----------------------------
 if __name__ == "__main__":
     print("Descargando datos...")
-    data = {}
-    # Asumiendo ibex_cache.pkl ya cargado localmente
-    with open("ibex_cache.pkl", "rb") as f:
-        data = pickle.load(f)["price_data"]
+    print("Descargando datos...")
+    data = download_data(IBEX_TICKERS)
 
     print("Construyendo dataset...")
     df = prepare_dataset(data)
