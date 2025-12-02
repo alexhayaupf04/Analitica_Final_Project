@@ -134,7 +134,6 @@ def train_models(df):
 # -----------------------------
 if __name__ == "__main__":
     print("Descargando datos...")
-    print("Descargando datos...")
     data = download_data(IBEX_TICKERS)
 
     print("Construyendo dataset...")
