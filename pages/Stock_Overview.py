@@ -9,7 +9,7 @@ from overview_utils import (
     save_cache
 )
 import plotly.express as px
-import pandas as pd
+
 
 st.set_page_config(page_title="IBEX35 - Overview", layout="wide")
 

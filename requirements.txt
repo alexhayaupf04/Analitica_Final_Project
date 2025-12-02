@@ -1,4 +1,10 @@
-streamlit
+
 numpy
-yfinance 
+pandas
+matplotlib
 plotly
+yfinance
+scikit-learn
+imblearn
+shap
+streamlit
