@@ -1,7 +1,7 @@
 # app.py
 import streamlit as st
 
-st.set_page_config(page_title="Analítica Visual- IBEX35", layout="wide")
+st.set_page_config(page_title="Visual Analytics- IBEX35", layout="wide")
 
 # --- Header ---
 st.title("Analítica Visual - IBEX 35")
