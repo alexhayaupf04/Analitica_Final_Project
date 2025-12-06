@@ -1,86 +1,101 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from ml_models import load_r_forest, load_xgboost
-st.title("IBEX35 - Trading Simulation")
-st.markdown("""
-Explain features model etc, what are we doing
-            """)
-tab1, tab2 = st.tabs(["Xgboost", "Random Forest"])
 
+st.title("IBEX 35 – Trading Simulation")
+st.markdown("""
+This section presents a backtest simulation of trading strategies using XGBoost and Random Forest models.  
+
+""")
+
+# Load models
 xgboost = load_xgboost()
 r_forest = load_r_forest()
 
-x_backtest = xgboost["backtest"]
-r_backtest = r_forest["backtest"]
+x_backtest = xgboost["backtest"][-1]
+r_backtest = r_forest["backtest"][-1]
 
-x_fold = x_backtest[-1]
-r_fold = r_backtest[-1]
+x_curve = x_backtest["curve"]
+x_metrics = x_backtest["metrics"]
 
-x_metrics = x_fold["metrics"]
-x_sr = x_metrics["Strategy Return"]
-x_br = x_metrics["BuyHold Return"]
-x_md = x_metrics["Max Drawdown"]
-x_sh = x_metrics["Sharpe Ratio"]
-x_curve = x_fold["curve"]
+r_curve = r_backtest["curve"]
+r_metrics = r_backtest["metrics"]
 
-r_metrics = r_fold["metrics"]
-r_curve = r_fold["curve"]
-r_sr = r_metrics["Strategy Return"]
-r_br = r_metrics["BuyHold Return"]
-r_md = r_metrics["Max Drawdown"]
-r_sh = r_metrics["Sharpe Ratio"]
-r_curve = r_fold["curve"]
+tab1, tab2 = st.tabs(["XGBoost", "Random Forest"])
 
-
+def plot_equity_curve(curve):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=curve.index, y=curve["cum_strategy"], mode='lines', name='Strategy',
+        line=dict(color='green')
+    ))
+    fig.add_trace(go.Scatter(
+        x=curve.index, y=curve["cum_buyhold"], mode='lines', name='Buy & Hold',
+        line=dict(color='blue')
+    ))
+    fig.update_layout(
+        xaxis_title="Date",
+        yaxis_title="Cumulative Returns %",
+        hovermode="x unified",
+        template="plotly_white"
+    )
+    return fig
 
 with tab1:
-    st.header("Xgboost")
+    st.header("XGBoost")
     st.subheader("Equity Curve")
-    
-    fig, ax = plt.subplots(figsize=(10,4))
-    ax.plot(x_curve["cum_strategy"], label="Strategy")
-    ax.plot(x_curve["cum_buyhold"], label="Buy & Hold")
-    ax.legend()
-    st.pyplot(fig)
+    st.text("View the cumulative returns of a trading strategy over time.")
+    st.plotly_chart(plot_equity_curve(x_curve), use_container_width=True)
 
-    xcol1, xcol2 = st.columns(2)
-    with xcol1:
+    st.markdown(
+    """
+    You can interact with the chart:
+    - Click and drag to zoom into any area.
+    - Hover over the lines to see detailed price information
+    """
+    )
+    st.markdown("---")
+
+    col1, col2, col3 = st.columns([1.1,1.2,0.9])
+    with col1:
         st.subheader("Strategy Return")
-        st.text(f"{round(x_sr,0)} EUR")
-        st.subheader("Max Drawdown")
-        st.text(f"{round(x_md,2)} EUR")
-
-    with xcol2:
-        st.subheader("BuyHold Return")
-        st.text(f"{round(x_br,2)} EUR")
+        st.text(f"{round(x_metrics['Strategy Return'], 2)} %")
+        st.text("Following model signals")
+    with col2:
+        st.subheader("Buy&Hold Return")
+        st.text(f"{round(x_metrics['BuyHold Return'], 2)} %")  
+    with col3:
         st.subheader("Sharpe Ratio")
-        st.text(f"{round(x_sh,2)}")
+        st.text(f"{round(x_metrics['Sharpe Ratio'], 2)}")
+        st.markdown("""**Good**""")
 
 with tab2:
     st.header("Random Forest")
     st.subheader("Equity Curve")
-    fig, ax = plt.subplots(figsize=(10,4))
-    ax.plot(r_curve["cum_strategy"], label="Strategy")
-    ax.plot(r_curve["cum_buyhold"], label="Buy & Hold")
-    ax.legend()
-    st.pyplot(fig)
+    st.text("View the cumulative returns of a trading strategy over time.")
+    st.plotly_chart(plot_equity_curve(r_curve), use_container_width=True)
+    
+    st.markdown(
+    """
+    You can interact with the chart:
+    - Click and drag to zoom into any area.
+    - Hover over the lines to see detailed price information
+    """
+    )
 
-    xcol1, xcol2 = st.columns(2)
-    with xcol1:
+    st.markdown("---")
+
+    col1, col2, col3 = st.columns([1.1,1.2,0.9])
+    with col1:
         st.subheader("Strategy Return")
-        st.text(f"{round(r_sr,0)} EUR")
-        st.subheader("Max Drawdown")
-        st.text(f"{round(r_md,2)} EUR")
-
-    with xcol2:
-        st.subheader("BuyHold Return")
-        st.text(f"{round(r_br,2)} EUR")
+        st.text(f"{round(r_metrics['Strategy Return'], 2)} %")
+        st.text("Following model signals.")
+    with col2:
+        st.subheader("Buy&Hold Return")
+        st.text(f"{round(r_metrics['BuyHold Return'], 2)} %")
+    with col3:
         st.subheader("Sharpe Ratio")
-        st.text(f"{round(r_sh,2)}")
-   
-
-
-
-
+        st.text(f"{round(r_metrics['Sharpe Ratio'], 2)}")
+        st.markdown("""**Good**""")

@@ -9,6 +9,9 @@ test.ipynb
 # C extensions
 *.so
 
+# Data / models
+data/
+models/
 # Distribution / packaging
 .Python
 build/

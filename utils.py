@@ -17,6 +17,41 @@ def get_ibex_tickers() -> List[str]:
     ]
     return tickers
 
+def get_ibex_tickers_name() -> List[str]:
+    tickers = [
+    'ACS, Actividades de Construcción y Servicios, S.A.',
+    'Acerinox, S.A.',
+    'Aena S.M.E., S.A.',
+    'Amadeus IT Group, S.A.',
+    'Acciona, S.A.',
+    'Corporación Acciona Energías Renovables, S.A.',
+    'Banco Bilbao Vizcaya Argentaria, S.A.',
+    'Bankinter, S.A.',
+    'CaixaBank, S.A.',
+    'Cellnex Telecom, S.A.',
+    'Inmobiliaria Colonial, SOCIMI, S.A.',
+    'Endesa, S.A.',
+    'Enagás, S.A.',
+    'Fluidra, S.A.',
+    'Ferrovial SE',
+    'Grifols, S.A.',
+    'International Consolidated Airlines Group S.A.',
+    'Iberdrola, S.A.',
+    'Industria de Diseño Textil, S.A.',
+    'Logista Integral, S.A.',
+    'Mapfre, S.A.',
+    'MERLIN Properties SOCIMI, S.A.',
+    'ArcelorMittal S.A.',
+    'Naturgy Energy Group, S.A.',
+    'Puig Brands SA',
+    'Redeia Corporación, S.A.',
+    'Banco de Sabadell, S.A.',
+    'Banco Santander, S.A.',
+    'Telefónica, S.A.',
+    'Unicaja Banco, S.A.'
+    ]
+    return tickers
+
 def get_indexes()-> List[str]:
     indexes = [
         "^IBEX"
@@ -113,11 +148,11 @@ def get_index_kpi(index, price_data):
     """
     Devuelve un dict con {last, prev, pct_change} para el ticker ^IBEX si está disponible.
     """
-    last = float(df["Close"].iloc[-1])
-    prev_max = float(df["Close"].iloc[0])
-    prev_day = float(df["Close"].iloc[-1])
-    prev_month = float(df["Close"].iloc[-30])
-    prev_year = float(df["Close"].iloc[-365])
+    last = df["Close"].iloc[-1]
+    prev_max = df["Close"].iloc[0]
+    prev_day = df["Close"].iloc[-2]
+    prev_month = df["Close"].iloc[-30]
+    prev_year = df["Close"].iloc[-365]
     
     pct_max = (last - prev_max) / prev_max if prev_max != 0 else 0.0
     pct_day = (last - prev_day) / prev_day if prev_day != 0 else 0.0
@@ -242,3 +277,4 @@ def get_indexes_data():
         price = cache["price_data"]
 
     return price
+
