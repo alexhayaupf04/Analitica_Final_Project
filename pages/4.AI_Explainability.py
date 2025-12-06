@@ -10,93 +10,54 @@ from ml_models import (
     load_xgboost,
     load_r_forest
 )
+from xai import prepare_shap_data, get_class_shap_values
 
-###########################################
-# CONFIG
-###########################################
 
 st.set_page_config(
     page_title="Explainable AI (XAI)",
     layout="wide"
 )
 
-st.title("Explainable AI – SHAP Analysis")
+st.title("IBEX 35 – XAI")
 
-###########################################
-# UTILS SHAP (CLAVE)
-###########################################
-
-def prepare_shap_data(model_bundle, df):
-    features = model_bundle["features"]
-    scaler = model_bundle["scaler"]
-
-    X = df[features]
-    X_scaled = scaler.transform(X)
-
-    return pd.DataFrame(X_scaled, columns=features, index=X.index)
-
-
-def get_class_shap_values(shap_values, class_idx):
-    """
-    Normaliza SHAP para:
-    - RandomForest: list[class]
-    - XGBoost multiclase: array (n_samples, n_features, n_classes)
-    """
-    if isinstance(shap_values, list):
-        return shap_values[class_idx]
-
-    if len(shap_values.shape) == 3:
-        return shap_values[:, :, class_idx]
-
-    raise ValueError("Formato SHAP no soportado")
-
-
-###########################################
-# LOAD DATA
-###########################################
 
 price_data, _ = get_tickers_data()
 df = prepare_dataset(price_data)
 
-###########################################
-# MODEL SELECTION
-###########################################
 
-model_name = st.selectbox(
-    "Select model",
-    ["XGBoost", "Random Forest"]
-)
+st.markdown("""
+This section shows how XGBoost and Random Forest models  make predictions using Shap.
+""")
+col1, col2 = st.columns(2)
+with col1:
+        
+    model_name = st.selectbox(
+        "Select model:",
+        ["XGBoost", "Random Forest"]
+    )
+
+with col2:
+    class_map = {0: "Buy", 1: "Hold", 2: "Sell"}
+    class_idx = st.selectbox(
+    "Select class:",
+    options=[0, 1, 2],
+    format_func=lambda x: class_map[x]
+    )
 
 if model_name == "XGBoost":
     bundle = load_xgboost("models/xgboost.pkl")
 else:
     bundle = load_r_forest("models/r_forest.pkl")
 
-###########################################
-# PREPARE SHAP INPUT
-###########################################
-
 X_shap = prepare_shap_data(bundle, df)
 
 explainer = shap.TreeExplainer(bundle["model"])
 shap_values = explainer.shap_values(X_shap)
-
-class_map = {0: "Buy", 1: "Hold", 2: "Sell"}
-
-class_idx = st.selectbox(
-    "Select class",
-    options=[0, 1, 2],
-    format_func=lambda x: class_map[x]
-)
-
 class_shap = get_class_shap_values(shap_values, class_idx)
 
-###########################################
-# GLOBAL EXPLANATION
-###########################################
 
 st.header("Global Feature Importance")
-
+st.markdown("""View feature importance over the dataset.""")
 shap.summary_plot(
     class_shap,
     X_shap,
@@ -107,16 +68,12 @@ shap.summary_plot(
 st.pyplot(plt)
 plt.close()
 
-###########################################
-# LOCAL EXPLANATION
-###########################################
-
 st.header("Local Explanation")
-
+st.markdown("""Shows feature importance for one prediction.""")
 row_idx = st.slider(
-    "Select observation",
+    "Select an observation:",
     min_value=0,
-    max_value=len(X_shap) - 1,
+    max_value=len(X_shap)- 1,
     value=0
 )
 

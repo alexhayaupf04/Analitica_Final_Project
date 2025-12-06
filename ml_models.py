@@ -9,7 +9,7 @@ from sklearn.model_selection import TimeSeriesSplit
 import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier
 from utils import get_tickers_data
-
+import os
 
 ###########################################
 # 2. FEATURES
@@ -229,7 +229,7 @@ def train_r_forest(df):
 
 
 def save_xgboost(final_model, scaler, feature_cols, le, fold_results, filename="models/xgboost.pkl"):
-
+    os.makedirs("models", exist_ok=True)
     with open(filename, "wb") as f:
         pickle.dump({
             "model": final_model,
@@ -240,7 +240,7 @@ def save_xgboost(final_model, scaler, feature_cols, le, fold_results, filename="
         }, f)
 
 def save_r_forest(final_model, scaler, feature_cols, le, fold_results, filename="models/r_forest.pkl"):
-
+    os.makedirs("models", exist_ok=True)
     with open(filename, "wb") as f:
         pickle.dump({
             "model": final_model,

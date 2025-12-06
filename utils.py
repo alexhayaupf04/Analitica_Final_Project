@@ -199,6 +199,7 @@ def compute_sector_changes(info_meta: Dict[str, dict], price_data: Dict[str, pd.
 
 def save_cache_tickers(price_data, info_meta, filename="data/ibex_tickers.pkl"):
     """Guarda los diccionarios de datos en un archivo pickle."""
+    os.makedirs("data", exist_ok=True)
     with open(filename, "wb") as f:
         pickle.dump({
             "timestamp": datetime.now(),
@@ -219,6 +220,7 @@ def load_cache_tickers(filename="data/ibex_tickers.pkl"):
     
 def save_cache_index(price_data, filename="data/ibex.pkl"):
     """Guarda los diccionarios de datos en un archivo pickle."""
+    os.makedirs("data", exist_ok=True)
     with open(filename, "wb") as f:
         pickle.dump({
             "timestamp": datetime.now(),
@@ -278,3 +280,8 @@ def get_indexes_data():
 
     return price
 
+if __name__ == "__main__": 
+    price_data, info_data = download_index_data(get_ibex_tickers())
+    i_price_data = download_tickers_data(get_indexes())
+    save_cache_tickers(price_data, info_data)
+    save_cache_index(i_price_data)

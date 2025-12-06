@@ -27,16 +27,27 @@ with col3:
     st.markdown(
     """
     **Ticker:** Short code representing a stock (e.g., SAN for Santander).  
+
     **Stock / Share:** Ownership unit of a company that can be traded.  
+
     **Stock Market:** Platform where shares are bought and sold.  
-    **RSI (Relative Strength Index):** Measures momentum and overbought/oversold conditions.  
+
+    **RSI (Relative Strength Index):** Measures momentum and overbought/oversold conditions.
+
     **Momentum / MAC:** Rate of price change; identifies trend strength.  
+
     **Moving Average (MA):** Average price over a period; helps smooth out trends.  
+
     **Volatility:** How much price fluctuates; higher volatility = higher risk.
+
     **Backtest:** Simulation of a trading strategy using historical data to evaluate performance.  
+
     **Buy & Hold:** Simple strategy of buying an asset and holding it until the end.  
+
     **Strategy Return:** Profit or loss from following a model's signals (Buy/Sell/Hold).  
+
     **Max Drawdown:** Largest drop from peak equity in a strategy; indicates risk.  
+    
     **Sharpe Ratio:** Risk-adjusted return; higher means better reward per unit of risk.   
     """
     )
