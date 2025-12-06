@@ -250,6 +250,64 @@ def save_r_forest(final_model, scaler, feature_cols, le, fold_results, filename=
             "backtest": fold_results
         }, f)
 
+def load_xgboost(filename="models/xgboost.pkl"):
+    with open(filename, "rb") as f:
+        xgboost = pickle.load(f)
+    return xgboost
+
+def load_r_forest(filename="models/r_forest.pkl"):
+    with open(filename, "rb") as f:
+        r_forest = pickle.load(f)
+    return r_forest
+
+def predict_today_for_all(model_bundle, price_data):
+    """
+    model_bundle = dict loaded with load_xgboost() or load_r_forest()
+    price_data = dict ticker → dataframe (from get_tickers_data)
+    """
+    model = model_bundle["model"]
+    scaler = model_bundle["scaler"]
+    features = model_bundle["features"]
+    le = model_bundle["label_encoder"]
+
+    results = []
+
+    for ticker, df in price_data.items():
+
+        # ---- 1. Build features ----
+        df_feat = build_features(df)
+        if df_feat.empty:
+            continue
+
+        # Última fila
+        last_row = df_feat.iloc[-1]
+
+        X = last_row[features].values.reshape(1, -1)
+        X_scaled = scaler.transform(X)
+
+        # ---- 2. Predicción (label) ----
+        pred_class_encoded = model.predict(X_scaled)[0]
+        pred_class = le.inverse_transform([pred_class_encoded])[0]
+
+        # ---- 3. Probabilidades ----
+        probas = model.predict_proba(X_scaled)[0]  # array tipo [p_buy, p_hold, p_sell]
+
+        # Probabilidad de la clase predicha
+        pred_proba = probas[pred_class_encoded]
+
+        # ---- 4. Guardar resultados ----
+        results.append({
+            "ticker": ticker,
+            "prediction": pred_class,
+            "prediction_proba": round(float(pred_proba), 4),
+            "prob_buy":  round(float(probas[le.transform(['Buy'])[0]]), 4),
+            "prob_hold": round(float(probas[le.transform(['Hold'])[0]]), 4),
+            "prob_sell": round(float(probas[le.transform(['Sell'])[0]]), 4),
+            "close_price": df["Close"].iloc[-1]
+        })
+
+    return pd.DataFrame(results)
+
 
 if __name__ == "__main__":
 

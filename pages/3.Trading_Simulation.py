@@ -2,19 +2,15 @@ import streamlit as st
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from ml_models import load_r_forest, load_xgboost
 st.title("IBEX35 - Trading Simulation")
 st.markdown("""
 Explain features model etc, what are we doing
             """)
 tab1, tab2 = st.tabs(["Xgboost", "Random Forest"])
 
-
-with open("models/xgboost.pkl", "rb") as f:
-    xgboost = pickle.load(f)
-
-with open("models/r_forest.pkl", "rb") as f:
-    r_forest = pickle.load(f)
+xgboost = load_xgboost()
+r_forest = load_r_forest()
 
 x_backtest = xgboost["backtest"]
 r_backtest = r_forest["backtest"]
