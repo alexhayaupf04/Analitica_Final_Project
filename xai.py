@@ -111,16 +111,16 @@ if __name__ == "__main__":
     xgb_bundle = load_xgboost("models/xgboost.pkl")
     X_shap_xgb = prepare_shap_data(xgb_bundle, df)
 
-    shap_global_summary(xgb_bundle, X_shap_xgb, 0, "xgb_shap_buy.png")
-    shap_global_summary(xgb_bundle, X_shap_xgb, 1, "xgb_shap_hold.png")
-    shap_global_summary(xgb_bundle, X_shap_xgb, 2, "xgb_shap_sell.png")
+    shap_global_summary(xgb_bundle, X_shap_xgb, 0, "imgs/xgb_shap_buy.png")
+    shap_global_summary(xgb_bundle, X_shap_xgb, 1, "imgs/xgb_shap_hold.png")
+    shap_global_summary(xgb_bundle, X_shap_xgb, 2, "imgs/xgb_shap_sell.png")
 
     shap_local_explanation(
         xgb_bundle,
         X_shap_xgb,
         row_idx=100,
         class_idx=0,
-        out_file="xgb_local_buy.png"
+        out_file="imgs/xgb_local_buy.png"
     )
 
     # ---------- RANDOM FOREST ----------

@@ -8,3 +8,4 @@ scikit-learn
 imblearn
 shap
 streamlit
+xgboost

@@ -6,19 +6,19 @@ st.set_page_config(page_title="Visual Analytics- IBEX35", layout="wide")
 # --- Header ---
 col1, col2 = st.columns(2)
 with col1:
-    st.title("V.A. - IBEX 35")
+    st.title("VA - IBEX 35")
     st.markdown(
     """
     You can navigate through the different project sections using the tab.
-    1. Stock Overview - brief
-    2. Stock Prediction - brief
-    3. Trading Simulation -brief
-    4. AI_ Explainability - brief
+    1. Stock Overview
+    2. Stock Prediction
+    3. Trading Simulation
+    4. AI Explainability
 
     """
 )
 with col2: 
-    st.image("trading.jpg", width="content")
+    st.image("imgs/trading.jpg", width="content")
 
 col3, col4 = st.columns(2)
 with col3:
