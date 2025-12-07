@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ```
 python -m utils
 python -m ml_models
-python  -m xai
+python -m xai
 ```
 
 ## Launch streamlit app
