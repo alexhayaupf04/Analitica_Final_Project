@@ -36,7 +36,7 @@ def plot_equity_curve(curve):
         line=dict(color='blue')
     ))
     fig.update_layout(
-        xaxis_title="Date",
+        xaxis_title="Time",
         yaxis_title="Cumulative Returns %",
         hovermode="x unified",
         template="plotly_white"

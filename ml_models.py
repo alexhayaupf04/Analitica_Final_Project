@@ -92,30 +92,59 @@ def sharpe_ratio(ret, freq=252):
     return (mean / vol) * np.sqrt(freq)
 
 
-def backtest_fold(df_test, preds, le):
-    df = df_test.copy()
-    df["ret"] = df["Close"].pct_change()
+def backtest_single_ticker(df_ticker, preds, le):
+    df = df_ticker.copy()
+
+    df["ret"] = df["Close"].pct_change().fillna(0)
 
     buy = le.transform(["Buy"])[0]
     sell = le.transform(["Sell"])[0]
 
-    df["pred"] = preds
+    df["signal"] = np.where(
+        preds == buy, 1,
+        np.where(preds == sell, -1, 0)
+    )
 
-    df["strategy_ret"] = np.where(df["pred"] == buy, df["ret"],
-                           np.where(df["pred"] == sell, -df["ret"], 0))
+    df["position"] = df["signal"].shift(1).fillna(0)
+    df["strategy_ret"] = df["position"] * df["ret"]
 
-    df["cum_strategy"] = compute_equity_curve(df["strategy_ret"])
-    df["cum_buyhold"] = compute_equity_curve(df["ret"])
+    return df[["strategy_ret", "ret"]]
+
+def backtest_portfolio(df_test, preds, le):
+    df_test = df_test.copy().reset_index(drop=True)
+
+    strat_returns = []
+    bh_returns = []
+
+    for ticker in df_test["ticker"].unique():
+        mask = df_test["ticker"] == ticker
+        df_ticker = df_test[mask]
+        preds_ticker = preds[mask.values]
+
+        df_back = backtest_single_ticker(df_ticker, preds_ticker, le)
+
+        strat_returns.append(df_back["strategy_ret"])
+        bh_returns.append(df_back["ret"])
+
+    strat_df = pd.concat(strat_returns, axis=1)
+    bh_df = pd.concat(bh_returns, axis=1)
+
+    strategy_ret = strat_df.mean(axis=1)
+    buyhold_ret = bh_df.mean(axis=1)
+
+    curve = pd.DataFrame({
+        "cum_strategy": (1 + strategy_ret).cumprod(),
+        "cum_buyhold": (1 + buyhold_ret).cumprod()
+    })
 
     metrics = {
-        "Strategy Return": df["cum_strategy"].iloc[-1] - 1,
-        "BuyHold Return": df["cum_buyhold"].iloc[-1] - 1,
-        "Max Drawdown": max_drawdown(df["cum_strategy"]),
-        "Sharpe Ratio": sharpe_ratio(df["strategy_ret"])
+        "Strategy Return": curve["cum_strategy"].iloc[-1] - 1,
+        "BuyHold Return": curve["cum_buyhold"].iloc[-1] - 1,
+        "Max Drawdown": max_drawdown(curve["cum_strategy"]),
+        "Sharpe Ratio": sharpe_ratio(strategy_ret)
     }
 
-    return df, metrics
-
+    return curve, metrics
 
 ###########################################
 # 6. TRAIN + BACKTEST + GUARDADO
@@ -160,8 +189,9 @@ def train_xgboost(df):
         print(classification_report(y_test, preds, target_names=le.classes_))
 
         df_test = df.iloc[test_idx]
-        bt_df, metrics = backtest_fold(df_test, preds, le)
-        fold_results.append({"fold": fold, "metrics": metrics, "curve": bt_df})
+        df_test = df_test.reset_index(drop=True)
+        curve, metrics = backtest_portfolio(df_test, preds, le)
+        fold_results.append({"fold": fold, "metrics": metrics, "curve": curve})
 
         print(metrics)
 
@@ -214,8 +244,9 @@ def train_r_forest(df):
         print(classification_report(y_test, preds, target_names=le.classes_))
 
         df_test = df.iloc[test_idx]
-        bt_df, metrics = backtest_fold(df_test, preds, le)
-        fold_results.append({"fold": fold, "metrics": metrics, "curve": bt_df})
+        df_test = df_test.reset_index(drop=True)
+        curve, metrics = backtest_portfolio(df_test, preds, le)
+        fold_results.append({"fold": fold, "metrics": metrics, "curve": curve})
 
         print(metrics)
 
