@@ -126,8 +126,14 @@ if __name__ == "__main__":
     # ---------- RANDOM FOREST ----------
     print("Running SHAP for Random Forest...")
     rf_bundle = load_r_forest("models/r_forest.pkl")
+
     X_shap_rf = prepare_shap_data(rf_bundle, df)
+    X_shap_rf = X_shap_rf.sample(100, random_state=42)
 
-    shap_global_summary(rf_bundle, X_shap_rf, 0, "rf_shap_buy.png")
+    shap_global_summary(
+        rf_bundle,
+        X_shap_rf,
+        0,
+        "imgs/rf_shap_buy.png"
+    )
 
-    print("✅ XAI images generated successfully")
